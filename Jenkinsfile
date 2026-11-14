@@ -30,7 +30,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    .venv/bin/pytest -v
+                    .venv/bin/python -m pytest -v
                 '''
             }
         }
