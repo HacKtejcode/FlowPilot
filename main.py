@@ -1,5 +1,5 @@
-
-import sqlite3
+import os
+import sqlite3 
 from pathlib import Path
 from typing import Literal
 from uuid import uuid4
@@ -14,8 +14,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-DATABASE_PATH = Path(__file__).resolve().parent / "flowpilot.db"
-
+DATABASE_PATH = Path(
+    os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parent / "flowpilot.db"))
+)
+DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class DeploymentCreate(BaseModel):
     service_name: str = Field(min_length=2, max_length=100)
