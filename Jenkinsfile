@@ -8,6 +8,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'FlowPilot source code checked out from GitHub'
@@ -17,8 +18,10 @@ pipeline {
         stage('Setup Python') {
             steps {
                 sh '''
+                    rm -rf .venv
                     python3 --version
                     python3 -m venv .venv
+                    .venv/bin/python --version
                 '''
             }
         }
@@ -27,14 +30,16 @@ pipeline {
             steps {
                 sh '''
                     .venv/bin/python -m pip install --upgrade pip
-                    .venv/bin/pip install -r requirements.txt
+                    .venv/bin/python -m pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '.venv/bin/python -m pytest -v'
+                sh '''
+                    .venv/bin/python -m pytest -v
+                '''
             }
         }
 
@@ -46,7 +51,8 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     sh '''
-                        docker build -t "$DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG" .
+                        docker build \
+                            -t "$DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG" .
                     '''
                 }
             }
@@ -60,11 +66,14 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     sh '''
+                        set +x
+
                         echo "$DOCKERHUB_TOKEN" | docker login \
                             --username "$DOCKERHUB_USERNAME" \
                             --password-stdin
 
-                        docker push "$DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
+                        docker push \
+                            "$DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
 
                         docker logout
                     '''
@@ -77,8 +86,13 @@ pipeline {
         success {
             echo 'FlowPilot CI/CD pipeline completed successfully!'
         }
+
         failure {
-            echo 'Pipeline failed. Check the console output.'
+            echo 'FlowPilot CI/CD pipeline failed. Check the console output.'
+        }
+
+        always {
+            echo 'FlowPilot pipeline execution finished.'
         }
     }
 }
