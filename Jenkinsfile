@@ -58,32 +58,7 @@ pipeline {
             }
         }
 
-        stage('Verify Docker Hub Credentials') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'DOCKERHUB_USERNAME',
-            passwordVariable: 'DOCKERHUB_TOKEN'
-        )]) {
-            sh '''
-                set +x
-
-                echo "Docker Hub username: $DOCKERHUB_USERNAME"
-
-                if [ -n "$DOCKERHUB_TOKEN" ]; then
-                    echo "Docker Hub token: Available"
-                else
-                    echo "Docker Hub token: Missing"
-                    exit 1
-                fi
-
-                echo "$DOCKERHUB_TOKEN" | docker login \
-                    --username "$DOCKERHUB_USERNAME" \
-                    --password-stdin
-            '''
-        }
-    }
-}
+       
 
         stage('Push to Docker Hub') {
             steps {
