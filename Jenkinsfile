@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'flowpilot'
-        IMAGE_TAG = '1.0.0'
+        IMAGE_TAG = '1.0.1'
     }
 
     stages {
