@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: flowpilot-deployment
+  namespace: flowpilot
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: flowpilot
+
+  template:
+    metadata:
+      labels:
+        app: flowpilot
+
+    spec:
+      containers:
+        - name: flowpilot
+          image: doccoder09/flowpilot:1.0.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8000
+              name: http
+
+          envFrom:
+            - configMapRef:
+                name: flowpilot-config
+          
+            - secretRef:
+                name: flowpilot-secret
+
+          volumeMounts:
+            - name: flowpilot-storage
+              mountPath: /data
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+      volumes:
+        - name: flowpilot-storage
+          persistentVolumeClaim:
+            claimName: flowpilot-pvc
