@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
+from prometheus_fastapi_instrumentator import Instrumentator
 
 
 app = FastAPI(
@@ -18,6 +19,9 @@ DATABASE_PATH = Path(
     os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parent / "flowpilot.db"))
 )
 DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
 
 class DeploymentCreate(BaseModel):
     service_name: str = Field(min_length=2, max_length=100)
