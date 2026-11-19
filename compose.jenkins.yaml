@@ -9,7 +9,7 @@ services:
       - "--host=tcp://0.0.0.0:2375"
       - "--host=unix:///var/run/docker.sock"
     volumes:
-      - docker_data:/var/lib/docker
+      - docker_data_recovery:/var/lib/docker
 
   jenkins:
     build:
@@ -30,3 +30,4 @@ services:
 volumes:
   jenkins_home:
   docker_data:
+  docker_data_recovery:
